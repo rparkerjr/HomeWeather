@@ -78,8 +78,16 @@ class OpenWeather :
         self._lon = value
         
     @property
-    def temp(self) :
-        return self.current.temp
+    def current_temperature(self) :
+        return self.current.temp[0]
+    
+    @property
+    def lo_temp(self) :
+        return self.daily.temp[0]['min']
+    
+    @property
+    def hi_temp(self) :
+        return self.daily.temp['max']
         
     # functions
     def fmt_unix_date(self, dt) :
@@ -104,8 +112,16 @@ class OpenWeather :
         except :
             print('Error contacting remote server.')
             return None
-        
+
+    def initial_load(self) :
+    	self.refresh_onecall()
+    	self.airpollution = self.get_airpollution()
+    	print('data loaded')
+
     def parse_onecall(self, data) :
+    	# This function takes the returned JSON data and breaks the data into
+    	# separate dataframes. Datetime fields are cleaned up and adjusted for
+    	# time zone differences.
         if data is None :
             print('No data!')
             return None
@@ -124,7 +140,7 @@ class OpenWeather :
             df['month'] = [datetime.datetime.utcfromtimestamp(d).strftime('%b') for d in df['dt']]
             df['day'] = [datetime.datetime.utcfromtimestamp(d).strftime('%d') for d in df['dt']]
             df['weekday'] = [datetime.datetime.utcfromtimestamp(d).strftime('%a') for d in df['dt']]
-        print('parsed')
+        #print('parsed')
 
         #return current, hourly, daily
         self.current = current
@@ -181,17 +197,6 @@ class OpenWeather :
             print('Error contacting remote server.')
             return None
     
-    def parse_airpollution(self, data) :
-        if data is None :
-            print('No data!')
-            return None
-        else :
-            print('Not implemented yet')
-        
-    def refresh_airpollution(self) :
-        print('Not implemented yet')
-        #self.parse_airpollution(self.get_airpollution())
-    
     def get_airpollution_forecast(self) :
         try :
             url = 'https://api.openweathermap.org/data/2.5/airpollution/forecast'
@@ -212,9 +217,6 @@ class OpenWeather :
         if data is None :
             print('No data!')
             return None
-        
-    def refresh_airpollution(self) :
-        self.parse_airpollution_forecast(self.get_airpollution_forecast())
         
     # HISTORICAL WEATHER -----------------------------------------
     def get_historical_weather(self) :
