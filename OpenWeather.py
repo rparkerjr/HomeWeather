@@ -78,6 +78,10 @@ class OpenWeather :
         self._lon = value
         
     @property
+    def as_of(self) :
+        return self.current.index[0]
+    
+    @property
     def current_temperature(self) :
         return self.current.temp[0]
     
@@ -87,7 +91,15 @@ class OpenWeather :
     
     @property
     def hi_temp(self) :
-        return self.daily.temp['max']
+        return self.daily.temp[0]['max']
+    
+    @property
+    def current_conditions_brief(self) :
+        return self.current['weather'][0][0]['main']
+    
+    @property
+    def current_conditions(self) :
+        return self.current['weather'][0][0]['description']
         
     # functions
     def fmt_unix_date(self, dt) :
